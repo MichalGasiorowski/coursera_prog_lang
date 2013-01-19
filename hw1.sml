@@ -5,16 +5,16 @@ Write a function is_older that takes two dates and evaluates to true or false. I
 the first argument is a date that comes before the second argument. (If the two dates are the same,
 the result is false.)
 *)
-fun is_older(d1: int*int*int, d2: int*int*int) =
+fun is_older(d1: int*int*int, d2: int*int*int) = 
     if (#1 d1) = (#1 d2)
     then if (#2 d1) = (#2 d2)
         then (#3 d1) <= (#3 d2)
         else (#2 d1) < (#2 d2)
     else (#1 d1) < (#1 d2)
 
-(* 2
-Write a function number_in_month that takes a list of dates and a month (i.e., an int) and returns
-how many dates in the list are in the given month.
+(* 2 
+Write a function number_in_month that takes a list of dates and a month (i.e., an int) and returns 
+how many dates in the list are in the given month. 
 *)
 fun number_in_month(dates: (int * int * int) list, month: int) =
     if null dates 
@@ -64,7 +64,7 @@ list where the head of the list is 1st. Do not worry about the case where the li
 your function may apply hd or tl to the empty list in this case, which is okay.
 *)
 fun get_nth(strs: string list, n: int) =
-    if n =1
+    if n = 1
     then hd strs
     else get_nth(tl strs, n - 1)
 
@@ -80,7 +80,7 @@ fun date_to_string(date: int*int*int) =
     let val month_names = ["January", "February", "March", "April", "May", "June", 
                     "July", "August", "September", "October", "November", "December"]
     in
-        get_nth(month_names, #2 date) ^ " " ^ Int.toString(#3 date) ^ " , " ^ Int.toString(#1 date)
+        get_nth(month_names, #2 date) ^ " " ^ Int.toString(#3 date) ^ ", " ^ Int.toString(#1 date)
     end 
 (* 8
 Write a function number_before_reaching_sum that takes an int called sum, which you can assume
@@ -90,7 +90,7 @@ n+1 elements of the list add to sum or more. Assume the entire list sums to more
 value; it is okay for an exception to occur if this is not the case.
 *)
 fun number_before_reaching_sum(sum: int, l_in: int list) =
-    if sum <= 0
+    if sum - (hd l_in) <= 0
     then 0
     else 1 + number_before_reaching_sum(sum - (hd l_in), tl l_in)
 (* 9
@@ -99,20 +99,20 @@ what month that day is in (1 for January, 2 for February, etc.). Use a list hold
 answer to the previous problem.
 *)
 fun what_month(day: int) = 
-    let val sum_list = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    let val sum_list = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     in
         number_before_reaching_sum(day, sum_list)
     end
 
 (* 10
 Write a function month_range that takes two days of the year day1 and day2 and returns an int list
-[m1,m2,...,mn] where m1 is the month of day1, m2 is the month of day1+1, ..., and mn is the month
+[m1,m2,...,mn] where m1 is the month of day1, m2 is the month of day1 + 1, ..., and mn is the month
 of day day2. Note the result will have length day2 - day1 + 1 or length 0 if day1>day2.
 *)
 fun month_range(day1: int, day2: int) =
     if day1 > day2
     then []
-    else what_month(day1)::month_range(day1 +1, day2)
+    else what_month(day1)::month_range(day1 + 1, day2)
 
 (* 11
 Write a function oldest that takes a list of dates and evaluates to an (int*int*int) option. It
@@ -164,10 +164,7 @@ fun number_in_months_challenge(dates: (int * int * int) list, months: int list) 
                     else (hd months) :: add_wo_reps(tl months)
                 end
         in
-            let val g = add_wo_reps(months)
-            in
-                number_in_months(dates, g) 
-            end
+            number_in_months(dates, add_wo_reps(months)) 
         end
 
 fun dates_in_months_challenge(dates: (int*int*int) list, months: int list) =
@@ -188,10 +185,7 @@ fun dates_in_months_challenge(dates: (int*int*int) list, months: int list) =
                     else (hd months) :: add_wo_reps(tl months)
                 end
         in
-            let val g = add_wo_reps(months)
-            in
-                dates_in_months(dates, g)
-            end
+            dates_in_months(dates, add_wo_reps(months))
         end
 (* 13
 Challenge Problem: Write a function reasonable_date that takes a date and determines if it
