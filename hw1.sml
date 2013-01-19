@@ -5,10 +5,11 @@ Write a function is_older that takes two dates and evaluates to true or false. I
 the first argument is a date that comes before the second argument. (If the two dates are the same,
 the result is false.)
 *)
+
 fun is_older(d1: int*int*int, d2: int*int*int) = 
     if (#1 d1) = (#1 d2)
     then if (#2 d1) = (#2 d2)
-        then (#3 d1) <= (#3 d2)
+        then (#3 d1) < (#3 d2)
         else (#2 d1) < (#2 d2)
     else (#1 d1) < (#1 d2)
 
@@ -127,7 +128,7 @@ fun oldest(dates: (int*int*int) list) =
             then hd dates
             else let val tail_oldest = local_oldest(tl dates)
                 in
-                    if is_older(hd dates, tail_oldest)
+                    if is_older(tail_oldest, hd dates)
                     then tail_oldest
                     else hd dates
                 end
@@ -187,6 +188,7 @@ fun dates_in_months_challenge(dates: (int*int*int) list, months: int list) =
         in
             dates_in_months(dates, add_wo_reps(months))
         end
+
 (* 13
 Challenge Problem: Write a function reasonable_date that takes a date and determines if it
 describes a real date in the common era. A \real date" has a positive year (year 0 did not exist), a
@@ -211,4 +213,5 @@ fun reasonable_date(date: int*int*int) =
         orelse ( (month = 2) andalso (day > get_nth(days_in_month, month) + 1 ) )
         orelse ( (month = 2) andalso (day = 29 ) andalso (not (is_skip_year(year) ) ) ) )
     end
+
 
