@@ -7,6 +7,8 @@
    so they will not type-check if officiate is not defined.
  *)
 
+use "hw2.sml";
+
 fun provided_test1 () = (* correct behavior: raise IllegalMove *)
     let val cards = [(Clubs,Jack),(Spades,Num(8))]
 	val moves = [Draw,Discard(Hearts,Jack)]
@@ -20,3 +22,6 @@ fun provided_test2 () = (* correct behavior: return 3 *)
     in
  	officiate(cards,moves,42)
     end
+
+val o1 = provided_test1() handle IllegalMove => 0;
+val o2 = provided_test2() handle IllegalMove => 0;
