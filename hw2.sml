@@ -8,8 +8,6 @@ fun same_string(s1 : string, s2 : string) =
 
 (* put your solutions for problem 1 here *)
 
-
-
 (* 1a
 Write a function all_except_option, which takes a string and a string list. Return NONE if the
 string is not in the list, else return SOME lst where lst is identical to the argument list except the string
@@ -56,15 +54,15 @@ fun get_substitutions1 (subL, s) =
 Write a function get_substitutions2, which is like get_substitutions1 except it uses a tail-recursive
 local helper function.
 *)
-fun get_substitutions2 (subL, s) =
-	let fun aux(subL, acc) = 
+fun get_substitutions2 (subL: string list list , s: string) =
+	let fun aux(subL: string list list, acc: string list) = 
 		case subL of
 			[] => acc
 		  | head::tail => let val suboptions = all_except_option(s, head)
 		  				  	in
 		  				  		case suboptions of
 		  				  			NONE => aux(tail, acc)
-		  				  		  | SOME subs => aux(tail, acc @ [subs])
+		  				  		  | SOME subs => aux(tail, acc @ subs)
 		  				  	end
 		in
 			aux(subL, [])
@@ -77,20 +75,14 @@ can produce by substituting for the First name (and only the First name) using s
 or (c). The answer should begin with the original name (then have 0 or more other names).
 *)
 
-fun similar_names(subL, full_name: {first:string, middle:string, last:string}) = 
+fun similar_names(subL: string list list, full_name: {first:string, middle:string, last:string}) = 
 	let val {first=x, middle=y, last=z} = full_name
 		fun helper (subs) = 
 			case subs of 
 			[] => []
 		  | head::rest => {first=head, middle=y, last=z} :: helper(rest)
 	in
-		let fun gen_subs(subs) = 
-			case subs of
-				[] => []
-		  	  | head::tail => helper(head) @ gen_subs(tail)
-		in
-			full_name :: gen_subs(get_substitutions2(subL, x))
-		end
+		[full_name] @ helper(get_substitutions2(subL, x))
 	end
 	
 (* you may assume that Num is always used with values 2, 3, ..., 9
@@ -107,6 +99,7 @@ exception IllegalMove
 (* put your solutions for problem 2 here *)
 (* minor helper functions*)
 
+(*count number of cards with rank r *)
 fun count_rank(cs: card list, r: rank) =
 	let fun helper(cs, acc) =
 		case cs of
@@ -117,7 +110,7 @@ fun count_rank(cs: card list, r: rank) =
 	in
 		helper(cs, 0)
 	end
-	
+(* general score  *)	
 fun score_general(card_sum, areAllSame, goal: int) = 
 	let val sum_minus_goal = card_sum - goal
 	in
@@ -127,6 +120,8 @@ fun score_general(card_sum, areAllSame, goal: int) =
 		  | (false, true) => ~sum_minus_goal div 2
 		  | (false, false) => ~sum_minus_goal
 	end
+
+
 
 (* 2a
 Write a function card_color, which takes a card and returns its color (spades and clubs are black,
@@ -169,7 +164,9 @@ fun all_same_color(cs: card list) =
 	case cs of
 		[] => true
 	  | c::[] => true
-	  | (s1, r1)::(s2, r2)::rest => s1 = s2 andalso all_same_color((s2, r2)::rest)
+	  | c1::c2::rest => case card_color(c1) = card_color(c2) of
+	  						true => all_same_color(c2::rest)
+	  	 				  | false => false
 
 (* 2e
 Write a function sum_cards, which takes a list of cards and returns the sum of their values. Use a locally
@@ -232,6 +229,22 @@ possible score. Hint: This is easier than you might think.
 print (Int.toString(cand_score)^"\n");
 score_general(sum_c, areAllSame, goal)
 *)
+(* helper function for getting minimum value of card ( Ace -> 1) *)
+fun card_value_min(c: card) = 
+	case c of
+		(_, Ace) => 1
+	  | (_, Num v) => v
+	  | _ => 10
+
+fun sum_cards_min(cs: card list) =
+	let fun helper(cs, acc) =
+		case cs of
+			[] => acc
+		  | head::tail => helper(tail, acc + card_value_min(head))
+	in
+		helper(cs, 0)
+	end
+
 fun score_challenge(cs: card list, goal: int) = 
 	let val sum_c = sum_cards(cs)
 		val all_aces = count_rank(cs, Ace)
@@ -250,7 +263,7 @@ fun score_challenge(cs: card list, goal: int) =
 
 fun officiate_challenge(cs: card list, mv: move list, goal) = 
 	let fun make_play(c_pile: card list, c_held: card list, mv_rem: move list) = 
-		case (sum_cards(c_held) - goal > 0, mv_rem) of
+		case (sum_cards_min(c_held) - goal > 0, mv_rem) of
 			(true, _) =>  score_challenge(c_held, goal)
 		  | (false, []) => score_challenge(c_held, goal)
 		  | (false, move::rest) => case (c_pile, move) of
@@ -271,5 +284,41 @@ officiate with the card-list, the goal, and the move-list has this behavior:
 done. (Note careful_player will have to look ahead to the next card, which in many card games
 is considered \cheating.")
 *)
+
+
+(*returns Card with given value, if no such card exist in pile - return (Spades, Num(0))  *)
+fun get_card_with_count(cs: card list, value: int) = 
+	let fun helper(cs: card list) = 
+		case cs of
+			[] => (Spades, Num(0))
+		  | head::rest => case card_value(head) - value = 0 of
+		  					true => head
+		  				  | false => helper(rest)
+	in
+		helper(cs)
+	end
+
+
 fun careful_player(cs: card list, goal: int) = 
-	
+	let fun helper(cs_stack: card list, cs_held: card list, mv: move list) = 
+		let val held_sum = sum_cards(cs_held)
+			val goal_min_sum = goal - held_sum
+		in
+			case (goal_min_sum = 0, goal_min_sum > 10, cs_stack) of
+				(true, _, _) => mv
+			  | (false, true, []) => mv
+			  | (false, true, top::rest) => helper(rest, cs_held @ [top], mv @ [Draw])
+			  | (false, false, []) => mv
+			  | (false, false, top::rest) => let val drawn_top_val = card_value(top)
+			  									 val searched_val = goal_min_sum - drawn_top_val
+			  								 in
+			  								 	case searched_val >= 0 of
+			  								 		true => helper(rest, cs_held @ [top], mv @ [Draw])
+			  								 	  | false => case get_card_with_count(cs_held, ~searched_val) of
+			  								 	  			(Spades, Num(0)) => mv
+			  								 	  		  | card_found => helper(rest, remove_card(cs_held, card_found, IllegalMove) @ [top], mv @[Discard card_found] @ [Draw] )
+			  								 end 
+		end
+	in
+		helper(cs, [], [])
+	end
