@@ -3,7 +3,7 @@
 (* 1
 Write a function is_older that takes two dates and evaluates to true or false. It evaluates to true if
 the first argument is a date that comes before the second argument. (If the two dates are the same,
-the result is false.)
+the result is false. )
 *)
 
 fun is_older(d1: int*int*int, d2: int*int*int) = 
