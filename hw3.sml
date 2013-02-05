@@ -91,7 +91,7 @@ Write a function longest_capitalized that takes a string list and returns the lo
 the list that begins with an uppercase letter (or "" if there are no such strings). Use a val-binding
 and the ML library's o operator for composing functions. Resolve ties like in problem 2.
 *)
-fun longest_capitalized lst = (longest_string1 o only_capitals )  lst
+fun longest_capitalized lst = (longest_string1 o only_capitals)  lst
 
 (* 6
 Write a function rev_string that takes a string and returns the string that is the same characters in
@@ -171,3 +171,5 @@ fun check_pat p =
 	in
 		get_all_vars p
 	end
+
+
