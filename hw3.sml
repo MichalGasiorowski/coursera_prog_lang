@@ -166,10 +166,60 @@ fun check_pat p =
 	let fun get_all_vars p =
 		case p of
 			Variable v => [v]
-		  | TupleP pL => foldl (fn (x, y) => (get_all_vars(x) @ get_all_vars(y) ) ) [] pL
+		  | TupleP pL => foldl (fn (x, y) => ( get_all_vars(x) @ y) ) [] pL
+		  | ConstructorP (_, pp ) => get_all_vars pp
 		  | _ => []
+		fun has_rep sList =
+			case sList of
+				[] => false
+			  | x::xs => (List.exists (fn s => s = x) xs) orelse has_rep xs
 	in
-		get_all_vars p
+		not ( (has_rep o get_all_vars) p )
 	end
 
+(* 11
+Write a function match that takes a valu * pattern and returns a (string * valu) list option,
+namely NONE if the pattern does not match and SOME lst where lst is the list of bindings if it does.
+Note that if the value matches but the pattern has no patterns of the form Variable s, then the result
+is SOME []. Hints: Sample solution has one case expression with 7 branches. The branch for tuples
+uses all_answers and ListPair.zip. Sample solution is 13 lines. Remember to look above for the
+rules for what patterns match what values, and what bindings they produce. These are hints: We are
+not requiring all_answers and ListPair.zip here, but they make it easier.
+*)
+fun match (v: valu, p: pattern) = (* (string * valu) list option *)
+	case (p, v) of
+		(Wildcard, _ ) => SOME []
+	  | (Variable s, _ ) => SOME [(s, v)]
+	  | (UnitP, Unit) => SOME []
+	  | (ConstP i, Const k) => if i = k then SOME [] else NONE
+	  | (TupleP ps, Tuple vs) => if (List.length ps <> List.length vs) then NONE 
+	  							else all_answers (match) (ListPair.zip(vs, ps))
+	  | (ConstructorP(s1, pp), Constructor(s2, vv)) => if s1=s2 then match(vv,pp) else NONE
+	  | _ => NONE
 
+(* 12
+Write a function first_match that takes a value and a list of patterns and returns a
+(string * valu) list option, namely NONE if no pattern in the list matches or SOME lst where
+lst is the list of bindings for the first pattern in the list that matches. Use first_answer and a
+handle-expression. Hints: Sample solution is 3 lines.
+*)
+
+fun first_match (v, pList) = 
+	SOME (first_answer (fn p => match(v, p) ) pList) handle NoAnswer => NONE
+
+
+(*
+(Challenge Problem) Write a function typecheck_patterns that \type-checks" a pattern list. Types
+for our made-up pattern language are defined by: ...
+typecheck_patterns should have type ((string * string * typ) list) * (pattern list) -> typ option.
+The first argument contains elements that look like ("foo","bar",IntT), which means constructor foo
+makes a value of type Datatype "bar" given a value of type IntT. Assume list elements all have different
+first fields (the constructor name), but there are probably elements with the same second field (the datatype
+name). Under the assumptions this list provides, you \type-check" the pattern list to see if there exists
+some typ (call it t) that all the patterns in the list can have. If so, return SOME t, else return NONE.
+You must return the \most lenient" type that all the patterns can have. For example, given patterns
+TupleP[Variable("x"),Variable("y")] and TupleP[Wildcard,Wildcard], return TupleT[Anything,Anything]
+even though they could both have type TupleT[IntT,IntT]. As another example, if the only patterns
+are TupleP[Wildcard,Wildcard] and TupleP[Wildcard,TupleP[Wildcard,Wildcard]], you must return
+TupleT[Anything,TupleT[Anything,Anything]].
+*)
