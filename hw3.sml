@@ -222,6 +222,7 @@ even though they could both have type TupleT[IntT,IntT]. As another example, if 
 are TupleP[Wildcard,Wildcard] and TupleP[Wildcard,TupleP[Wildcard,Wildcard]], you must return
 TupleT[Anything,TupleT[Anything,Anything]].
 *)
-(* oh, boy -  here it comes *)
+(* oh, boy -  here it comes 
 fun typecheck_patterns (k: (string*string*typ) list, pL: pattern list) = 1
 	
+*)
