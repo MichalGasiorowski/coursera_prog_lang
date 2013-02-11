@@ -204,9 +204,8 @@ lst is the list of bindings for the first pattern in the list that matches. Use 
 handle-expression. Hints: Sample solution is 3 lines.
 *)
 
-fun first_match (v, pList) = 
+fun first_match v pList = 
 	SOME (first_answer (fn p => match(v, p) ) pList) handle NoAnswer => NONE
-
 
 (*
 (Challenge Problem) Write a function typecheck_patterns that \type-checks" a pattern list. Types
@@ -223,3 +222,6 @@ even though they could both have type TupleT[IntT,IntT]. As another example, if 
 are TupleP[Wildcard,Wildcard] and TupleP[Wildcard,TupleP[Wildcard,Wildcard]], you must return
 TupleT[Anything,TupleT[Anything,Anything]].
 *)
+(* oh, boy -  here it comes *)
+fun typecheck_patterns (k: (string*string*typ) list, pL: pattern list) = 1
+	

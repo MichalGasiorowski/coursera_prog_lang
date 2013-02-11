@@ -1,5 +1,17 @@
 use "hw3.sml";
 
+fun have_same_items l1 l2 = (* return true if l1 has the same items than l2 *)
+    case l1 of
+    head :: tail => not (List.exists (fn x => x = head) l2) 
+                 orelse have_same_items tail l2
+      | []           => true
+
+fun same_items (lo1, lo2) =
+    case (lo1, lo2) of
+    (NONE, NONE)       => true
+      | (SOME l1, SOME l2) => have_same_items l1 l2
+      | _                  => false
+
 val tests = [
 	(*FUN 1 TEST val only_capitals = fn : string list -> string list *)
 	("1: empty test", only_capitals([]) = []),
@@ -64,31 +76,83 @@ val tests = [
 	("8: empty",( all_answers (fn a => if String.size a > 3 then SOME (String.explode a) else NONE ) ["AAAA"]  ) 
 		= SOME [#"A",#"A",#"A",#"A"] ),
 	(*FUN 9 TEST val count_wildcards = fn : pattern -> int *)
-	("9a: No wildcards", count_wildcards UnitP = 0),
-	("9a: 1 wildcard", count_wildcards Wildcard = 1),
-	("9a: Variable", count_wildcards (Variable "aa") = 0),
-	("9a: ConstP", count_wildcards (ConstP 4) = 0),
-	("9a: TupleP basic", count_wildcards (TupleP [Wildcard] ) = 1),
-	("9a: TupleP nested", count_wildcards (TupleP [Wildcard, UnitP, (TupleP [Wildcard])] ) = 2),
-	("9a: ConstructorP basic", count_wildcards (ConstructorP ("a", UnitP) ) = 0),
-	("9a: ConstructorP basic", count_wildcards (ConstructorP ("a", Wildcard) ) = 1),
-	("9a: ConstructorP basic", count_wildcards (ConstructorP ("a", (ConstructorP ("b", Wildcard ) ) ) ) = 1),
+	("9aa: No wildcards", count_wildcards UnitP = 0),
+	("9ab: 1 wildcard", count_wildcards Wildcard = 1),
+	("9ac: Variable", count_wildcards (Variable "aa") = 0),
+	("9ad: ConstP", count_wildcards (ConstP 4) = 0),
+	("9ae: TupleP basic", count_wildcards (TupleP [Wildcard] ) = 1),
+	("9af: TupleP nested", count_wildcards (TupleP [Wildcard, UnitP, (TupleP [Wildcard])] ) = 2),
+	("9ag: ConstructorP basic", count_wildcards (ConstructorP ("a", UnitP) ) = 0),
+	("9ah: ConstructorP basic+", count_wildcards (ConstructorP ("a", Wildcard) ) = 1),
+	("9ai: ConstructorP basic++", count_wildcards (ConstructorP ("a", (ConstructorP ("b", Wildcard ) ) ) ) = 1),
 	(*FUN 9b TEST val count_wild_and_variable_lengths = fn : pattern -> int *)
-	("9b: 1 wildcard ", count_wild_and_variable_lengths (TupleP [Wildcard] ) = 1),
-	("9b: 2 wildcard ", count_wild_and_variable_lengths (TupleP [Wildcard, UnitP, (TupleP [Wildcard])] ) = 2),
-	("9b: wildcard and variable ", count_wild_and_variable_lengths (TupleP [Wildcard, (Variable "aa")] ) = 3),
-	("9b: 1 wildcard and constructorP ", count_wild_and_variable_lengths (ConstructorP ("a", (ConstructorP ("b", Wildcard ) ) ) ) = 1),
-	("9b: 1 wildcard and constructorP ", count_wild_and_variable_lengths (ConstructorP ("a", 
+	("9ba: 1 wildcard ", count_wild_and_variable_lengths (TupleP [Wildcard] ) = 1),
+	("9bb: 2 wildcard ", count_wild_and_variable_lengths (TupleP [Wildcard, UnitP, (TupleP [Wildcard])] ) = 2),
+	("9bc: wildcard and variable ", count_wild_and_variable_lengths (TupleP [Wildcard, (Variable "aa")] ) = 3),
+	("9bd: 1 wildcard and constructorP ", count_wild_and_variable_lengths (ConstructorP ("a", (ConstructorP ("b", Wildcard ) ) ) ) = 1),
+	("9be: 1 wildcard and constructorP ", count_wild_and_variable_lengths (ConstructorP ("a", 
 		(ConstructorP ("b", (TupleP [(Variable "aa")] ) ) ) ) ) = 2),
 	(*FUN 9c TEST val count_some_var = fn : string * pattern -> int *)
-	("9c: non matching var ", count_some_var ("a", (ConstructorP ("a", 
+	("9ca: non matching var ", count_some_var ("a", (ConstructorP ("a", 
 		(ConstructorP ("b", (TupleP [(Variable "aa")] ) ) ) ) ) )= 0),
-	("9c: 1 wildcard and constructorP ", count_some_var ("A", (ConstructorP ("a", 
+	("9cb: 1 wildcard and constructorP ", count_some_var ("A", (ConstructorP ("a", 
 		(ConstructorP ("b", (TupleP [(Variable "A")] ) ) ) ) ) )= 1),
-	("9c: 1 wildcard and constructorP ", count_some_var ("aa", (ConstructorP ("a", 
-		(ConstructorP ("b", (TupleP [(Variable "aa"),(Variable "aa")] ) ) ) ) ) )= 2)
-
+	("9cd: 1 wildcard and constructorP ", count_some_var ("aa", (ConstructorP ("a", 
+		(ConstructorP ("b", (TupleP [(Variable "aa"),(Variable "aa")] ) ) ) ) ) )= 2),
+	(*10 TEST val check_pat = fn : pattern -> bool *)
+	("10: 10a ", check_pat (TupleP [Wildcard] ) = true),
+	("10: 10b ", check_pat ((Variable "aa") ) = true),
+	("10: 10c ", check_pat (TupleP [(Variable "aa"), (Variable "a") ] ) = true),
+	("10: 10c ", check_pat (TupleP [(Variable "aa"), (Variable "aa") ] ) = false),
+	("10: 10e ", check_pat (ConstructorP ("a", 
+		(ConstructorP ("b", (TupleP [(Variable "aa")] ) ) ) ) )  = true),
+	(*11 TEST val match = fn : valu * pattern -> (string * valu) list option *)	
+	("11: 11a ",same_items(match(Const 10, Wildcard), SOME []) ),
+   	("11: 11b  ",same_items(match(Unit, Wildcard), SOME []) ),
+   	("11: 11c  ",same_items(match(Constructor("Test", Unit), Wildcard), SOME []) ),
+   	("11: 11d  ",same_items(match(Tuple [Unit, Const 10], Wildcard), SOME []) ),
+   	("11: 11e  ",same_items(match(Unit, UnitP), SOME []) ),
+   	("11: 11f  ",same_items(match(Const 10, ConstP 10), SOME []) ),
+   	("11: 11g  ",same_items(match(Const 10, ConstP 20), NONE) ),
+   	("11: 11h  ",same_items(match(Const 10, Variable "x"), SOME [("x",Const 10)]) ),
+   	("11: 11i  ",same_items(match(Constructor("Test", Const 35),
+            ConstructorP("Test", Variable "y")), SOME [("y",Const 35)]) ),
+   	("11: 11j  ", same_items(match(Constructor("Test", Const 35), 
+            ConstructorP("Fail", Variable "y")), NONE) ),
+   	("11: 11k  ",same_items(match(Tuple([Const 1, Const 2]), 
+            TupleP([Variable "x", Variable "y", Variable "z"])), NONE) ),
+    ("11: 11l  ",same_items(match(Tuple [Const 1, Const 2, Const 3, Const 4], 
+            TupleP [Variable "w",Variable "x", Variable "y", 
+                Variable "z"]) , 
+          SOME [("z",Const 4),("y",Const 3),("x",Const 2),("w",Const 1)]) ),
+    ("11: 11m  ",same_items(match(Tuple [Const 1, Const 2, Const 3, Const 4], 
+            TupleP [ConstP 1,Variable "x", ConstP 3, Variable "z"]),
+          SOME [("z",Const 4),("x",Const 2)]) ),
+    ("11: 11n  ", same_items(
+     match(Constructor("A", 
+               Tuple([Unit, Const 10, Const 20, 
+                  Tuple([Unit, 
+                     Constructor("B", Const 30)])])), 
+       ConstructorP("A", 
+            TupleP([UnitP, Variable "x", ConstP 20, 
+                TupleP([UnitP, 
+                    ConstructorP("B", 
+                             Variable "y")])]))),
+     SOME [("y", Const 30), ("x", Const 10)]) ),
+    (* 12 TEST val first_match = fn : valu -> pattern list -> (string * valu) list option *)
+    ("12: 12a  ", first_match (Const 10) [ConstP 10, Variable "x"] = SOME [] ),
+    ("12: 12b  ", first_match (Const 10) [Variable "x", ConstP 10] = SOME [("x",Const 10)] ),
+    ("12: 12c  ", first_match (Const 10) [Variable "x", Variable "y"] = SOME [("x",Const 10)] ),     
+    ("12: 12d  ", first_match (Const 10) [UnitP, ConstructorP("Test", ConstP 10), Wildcard, 
+                 Variable "y", ConstP 10] = SOME [] ),
+    ("12: 12e  ", first_match (Const 10) [UnitP, ConstructorP("Test", ConstP 10), 
+                 Variable "y", Wildcard, ConstP 10] = SOME [("y", Const 10)] ), 
+    ("12: 12f  ",  first_match (Const 10) [UnitP] = NONE ),
+    ("12: 12g  ", first_match (Constructor ("foo", Unit)) [ConstructorP("foo", UnitP)] =
+       SOME [] ),
+    ("12: 12h  ",  first_match (Constructor ("foo", Unit)) [ConstructorP("bar", UnitP)] = NONE )
 ];
+
 print "\n------------------------------------------------\n";
 fun all_tests(tests) =
 	let fun helper(tests: (string*bool) list, all_passed) = 
@@ -102,6 +166,7 @@ fun all_tests(tests) =
 
 case all_tests(tests) of
 	true => print "--------------EVERY TESTS PASSED-------------\n"
-  | false => print "--------------SOMETHING IS WRONG-------------------------\n"
+  | false => print "--------------SOMETHING IS WRONG-------------------------\n";
+
 
 
