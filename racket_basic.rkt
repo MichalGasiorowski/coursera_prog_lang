@@ -5,30 +5,29 @@
 
 (provide (all-defined-out))
 
-(define x 3) ; val x = 3
-(define y (+ x 2)) ; + is a function, call it here
+(define a 3)
+(define b (+ a 2))
 
 (define cube1
   (lambda (x)
-    (* x (* x x)))) ;x * ( x * x )
+    (* x (* x x))))
 
 (define cube2
   (lambda (x)
     (* x x x)))
 
-(define (cube3 x)
-  (* x x x))
+(define (sum xs)
+  (if (null? xs)
+      0
+      (+ (car xs) (sum (cdr xs)))))
 
-(define (pow1 x y)
-  (if (= y 0)
-      1
-      (* x (pow1 x (- y 1)))))
+(define (append xs ys)
+  (if (null? xs)
+      ys
+      (cons (car xs) (append (cdr xs) ys))))
 
-(define  pow2
-  (lambda (x)
-    (lambda (y)
-      (pow1 x y))))
-
-(define three-to-the (pow2 3))
+(define (mod x)
+  (cond [(> x 0) x]
+        [#t (- x)]))
 
 

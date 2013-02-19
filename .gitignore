@@ -1,4 +1,6 @@
 # Coursera Programming Languages gitignore
 
+*.bak
 *.txt
 evaluation/
+compiled/
