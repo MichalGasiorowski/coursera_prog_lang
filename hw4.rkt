@@ -4,13 +4,7 @@
 
 ;; put your code below
 
-(define (stream-maker fn arg)
-  (letrec ([f (lambda (x)
-                (cons x (lambda () (f (fn x arg)))))])
-    (lambda () (f arg))))
-
 ;; 1
-
 (define (sequence low high stride)
   (if (> low high)
       empty
@@ -21,7 +15,6 @@
   (map (lambda (x) (string-append x suffix)) xs))
 
 ;; 3
-
 (define (list-nth-mod xs n)
   (cond [(< n 0) (error "list-nth-mod: negative number")]
         [(null? xs) (error "list-nth-mod: empty list")]
@@ -54,7 +47,6 @@
     (lambda () (cons (cons 0 (car pr)) (stream-add-zero (cdr pr))))))
 
 ;; 8 (cons (cons (list-nth-mod xs n) (list-nth-mod ys n))
-
 (define (cycle-lists xs ys)
   (define (helper n)
     (cons (cons (list-nth-mod xs n) (list-nth-mod ys n)) (lambda () (helper (+ n 1)))))
@@ -71,8 +63,30 @@
   (helper 0))
 
 ;; 10
-
+(define (cached-assoc xs n)
+  (letrec ([memo (make-vector n #f)]
+           [i 0]
+           [f (lambda (v)
+                (let ([ans (vector-assoc v memo)])
+                  (if ans
+                      ans
+                      (let ([new-ans (assoc v xs)])
+                        (begin 
+                          (vector-set! memo i new-ans)
+                          (set! i (remainder (+ i 1) n))
+                          new-ans)))))])
+    f))
   
+;; 11
+(define-syntax while-less
+  (syntax-rules (do)
+    [(while-less e1 do e2)
+     (let ([x e1])
+       (define (helper) 
+         (if (< e2 x) (helper) #t))
+       (helper))]))
+
+       
 
   
     
