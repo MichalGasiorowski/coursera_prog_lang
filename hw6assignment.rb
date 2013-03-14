@@ -43,7 +43,7 @@ class MyPiece < Piece
     							rotations([[0, 0], [1, 0], [0, 1]])]
   
   # your enhancements here
-  Cheat_piece = [[0, 0]]
+  Cheat_piece = [[[0, 0]]]
 
 
   def initialize (point_array, board)
@@ -116,8 +116,7 @@ class MyBoard < Board
   # rotates the current piece clockwise
   def rotate_180
     if !game_over? and @game.is_running?
-      rotate_clockwise
-      rotate_clockwise
+      @current_block.move(0, 0, 2)
     end
     draw
   end
