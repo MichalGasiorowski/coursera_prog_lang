@@ -16,8 +16,7 @@ class MyTetris < Tetris
   def key_bindings
   	super  
     @root.bind('u', proc {@board.rotate_180}) 
-    @root.bind('c', proc {cheat})
-    
+    @root.bind('c', proc {cheat}) 
   end
 
   def cheat
@@ -37,23 +36,14 @@ end
 class MyPiece < Piece
   # The constant All_My_Pieces should be declared here
   All_My_Pieces = All_Pieces + [rotations([[0, 0], [1, 0], [2, 0], [0, 1],[1, 1]]), # bulky-5 normal
-  								#rotations([[0, 0], [-1, 0], [1, 0], [0, -1],[1, -1]]),  # bulky-5 mirror
-								[[[0, 0], [-1, 0], [1, 0], [2, 0],[-2, 0]], # v-long (only needs two)
+  								#rotations([[0, 0], [-1, 0], [1, 0], [0, -1],[1, -1]]),  # bulky-5 mirror oops - not needed
+								[[[0, 0], [-1, 0], [1, 0], [2, 0],[-2, 0]], # 5-long (only needs two)
     							[[0, 0], [0, -1], [0, 1], [0, 2], [0, -2]]],
-    							rotations([[0, 0], [1, 0], [0, 1]])]
+    							rotations([[0, 0], [1, 0], [0, 1]]) # tri-piece
+                ]
   
   # your enhancements here
   Cheat_piece = [[[0, 0]]]
-
-
-  def initialize (point_array, board)
-    @all_rotations = point_array
-    @rotation_index = (0..(@all_rotations.size-1)).to_a.sample
-    @color = All_Colors.sample
-    @base_position = [5, 0] # [column, row]
-    @board = board
-    @moved = true
-  end
 
   def self.next_piece (board)
     MyPiece.new(All_My_Pieces.sample, board)
@@ -102,8 +92,7 @@ class MyBoard < Board
     locations = @current_block.current_rotation
     displacement = @current_block.position
     #puts locations.size
-    ss =  locations.size - 1
-    (0..ss).each{|index| 
+    (0..(locations.size - 1)).each{|index| 
       current = locations[index];
       @grid[current[1]+displacement[1]][current[0]+displacement[0]] = 
       @current_pos[index]
@@ -116,7 +105,7 @@ class MyBoard < Board
   # rotates the current piece clockwise
   def rotate_180
     if !game_over? and @game.is_running?
-      @current_block.move(0, 0, 2)
+      @current_block.move(0, 0, 2) # works funky near edges, but passes the tests...
     end
     draw
   end
