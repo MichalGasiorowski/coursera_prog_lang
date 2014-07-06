@@ -304,7 +304,7 @@ class LineSegment < GeometryValue
     LineSegment.new(@x1 + dx, @y1 + dy, @x2 + dx, @y2 + dy)
   end
   def intersect other
-    other.intersectNoPoints self # will be NoPoints but follow double-dispatch
+    other.intersectLineSegment self # will be NoPoints but follow double-dispatch
   end
   def intersectPoint p
     p.intersectLineSegment self # intersection with point and no-points is no-points
